@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
 import redis
 import os
@@ -9,6 +9,9 @@ import requests
 # Load environment variables
 load_dotenv()
 
+# Get webhook verify token from environment variable
+VERIFY_TOKEN = os.getenv('VERIFY_TOKEN', 'default_verify_token')
+
 app = FastAPI()
 
 # Initialize Redis using environment variable
@@ -17,6 +20,21 @@ redis_client = redis.from_url(redis_url)
 
 class Message(BaseModel):
     text: str
+
+@app.get("/webhook")
+async def verify_webhook(request: Request):
+    """
+    Handle webhook verification from Meta/WhatsApp
+    """
+    mode = request.query_params.get("hub.mode")
+    token = request.query_params.get("hub.verify_token")
+    challenge = request.query_params.get("hub.challenge")
+
+    if mode and token:
+        if mode == "subscribe" and token == VERIFY_TOKEN:
+            return int(challenge) if challenge else "OK"
+        return {"error": "Invalid verification token"}
+    return {"error": "Invalid request"}
 
 @app.post("/webhook")
 async def handle_message(message: Message):
