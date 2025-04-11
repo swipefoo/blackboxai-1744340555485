@@ -1,45 +1,125 @@
 # Prof Noor - WhatsApp Bot
 
-## Docker Setup Instructions
+A WhatsApp bot that handles Arabic/Darija messages with transliteration support and integration with TinyLlama model.
 
-1. **Prerequisites**:
-   Make sure you have the following installed:
-   - Docker
-   - Docker Compose
+## Features
 
-2. **Configure Environment Variables**:
-   Update the `.env` file with your WhatsApp Cloud API key:
+- Arabic/Latin transliteration support
+- Redis-based message caching
+- Docker containerization
+- Health checks for services
+- Error handling and logging
+- WhatsApp Cloud API integration
+
+## Prerequisites
+
+- Docker and Docker Compose
+- WhatsApp Business API credentials
+- Python 3.9+
+
+## Quick Start
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd whatsapp_bot
+   ```
+
+2. **Configure Environment Variables**
+   Create a `.env` file:
    ```env
    WHATSAPP_API_KEY=your_api_key_here
    REDIS_URL=redis://redis:6379
    ```
 
-3. **Build and Run with Docker**:
+3. **Build and Run**
    ```bash
-   # Build and start the containers
    docker-compose up --build
-
-   # To run in detached mode
-   docker-compose up -d --build
    ```
 
-4. **Stop the Application**:
-   ```bash
-   docker-compose down
-   ```
-
-5. **Expose Local Server with ngrok**:
-   Install ngrok if you haven't already. Then run:
+4. **Expose Local Server**
    ```bash
    ngrok http 8000
    ```
-   This will provide you with a public URL that you can use to configure the WhatsApp Cloud API webhook.
 
-6. **Configure WhatsApp Cloud API**:
-   Use the ngrok URL to set up your webhook in the WhatsApp Cloud API settings.
+## API Endpoints
 
-## Usage
-Send a message in Darija to the bot, and it will respond with the processed message.
+### POST /webhook
+Handles incoming WhatsApp messages
 
-## Note
-Make sure to handle the TinyLlama model integration as per your requirements.
+**Request Body:**
+```json
+{
+    "text": "Your message here"
+}
+```
+
+**Response:**
+```json
+{
+    "response": "Processed message",
+    "status": "success"
+}
+```
+
+## Architecture
+
+- **FastAPI**: Web framework for handling requests
+- **Redis**: Message caching and rate limiting
+- **Docker**: Containerization and service orchestration
+- **TinyLlama**: Text processing (placeholder)
+
+## Development
+
+1. **Install Dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Run Tests**
+   ```bash
+   pytest
+   ```
+
+3. **Local Development**
+   ```bash
+   uvicorn main:app --reload
+   ```
+
+## Transliteration Support
+
+The bot supports bidirectional transliteration between Arabic and Latin scripts:
+
+- Arabic → Latin: Converts Arabic text to Latin characters
+- Latin → Arabic: Converts Latin text back to Arabic script
+
+## Docker Services
+
+- **web**: FastAPI application (port 8000)
+- **redis**: Message cache (port 6379)
+
+## Troubleshooting
+
+1. **Redis Connection Issues**
+   - Check Redis container status: `docker-compose ps`
+   - Verify Redis logs: `docker-compose logs redis`
+
+2. **API Not Responding**
+   - Check web container logs: `docker-compose logs web`
+   - Verify environment variables are set correctly
+
+3. **Container Health Checks**
+   - Monitor service health: `docker-compose ps`
+   - Check individual service logs: `docker-compose logs [service]`
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
