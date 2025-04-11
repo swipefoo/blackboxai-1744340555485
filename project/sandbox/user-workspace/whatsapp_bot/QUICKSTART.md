@@ -1,55 +1,108 @@
 # Quick Start Guide - Prof Noor WhatsApp Bot
 
-## Step 1: Install Required Software
-1. Install Docker: https://docs.docker.com/get-docker/
-2. Install ngrok: https://ngrok.com/download
+## 1. Prerequisites
+- Docker and Docker Compose installed
+- ngrok installed (for local development)
+- WhatsApp Business API credentials
 
-## Step 2: Set Up WhatsApp Cloud API
-1. Go to https://developers.facebook.com/
-2. Create a Meta Developer account if you haven't already
-3. Create a WhatsApp Business App
-4. Get your WhatsApp API Key
+## 2. First-Time Setup
 
-## Step 3: Configure the Bot
-1. Open the `.env` file and add your WhatsApp API key:
-```
-WHATSAPP_API_KEY=your_api_key_here
-REDIS_URL=redis://redis:6379
-```
+1. **Set Environment Variables**
+   Create a `.env` file in the project root:
+   ```env
+   WHATSAPP_API_KEY=your_api_key_here
+   REDIS_URL=redis://redis:6379
+   ```
 
-## Step 4: Run the Bot
-1. Open a terminal in the whatsapp_bot directory
-2. Start the containers:
-```bash
-docker-compose up --build
-```
-You should see logs indicating both the FastAPI app and Redis are running.
+2. **Build and Start Services**
+   ```bash
+   # Build and start containers
+   docker-compose up --build -d
 
-## Step 5: Expose the Bot to Internet
-1. Open a new terminal
-2. Run ngrok:
-```bash
-ngrok http 8000
-```
-3. Copy the HTTPS URL provided by ngrok (looks like: https://xxxx-xx-xx-xx-xx.ngrok.io)
+   # Verify services are running
+   docker-compose ps
+   ```
 
-## Step 6: Configure Webhook
-1. Go to your WhatsApp Cloud API settings
-2. Set up webhook URL: [your ngrok URL]/webhook
-   Example: https://xxxx-xx-xx-xx-xx.ngrok.io/webhook
+3. **Expose the API**
+   ```bash
+   ngrok http 8000
+   ```
+   Copy the HTTPS URL provided by ngrok.
+
+## 3. WhatsApp API Configuration
+
+1. Go to [WhatsApp Cloud API Dashboard](https://developers.facebook.com/apps/)
+2. Set webhook URL: `https://your-ngrok-url/webhook`
 3. Configure webhook to receive messages
 
-## Step 7: Test the Bot
-1. Send a message in Darija to your WhatsApp bot number
-2. The bot should respond with a processed message
+## 4. Testing the Bot
 
-## Useful Commands
-- Start in background: `docker-compose up -d --build`
-- Stop the bot: `docker-compose down`
-- View logs: `docker-compose logs -f`
-- Restart: `docker-compose restart`
+1. Send a message to your WhatsApp business number
+2. Check logs for any issues:
+   ```bash
+   docker-compose logs -f web
+   ```
 
-## Troubleshooting
-- If port 8000 is in use: `docker-compose down && docker-compose up --build`
-- Check logs: `docker-compose logs`
-- Redis issues: `docker-compose restart redis`
+## 5. Common Commands
+
+```bash
+# Start services
+docker-compose up -d
+
+# Stop services
+docker-compose down
+
+# View logs
+docker-compose logs -f
+
+# Restart specific service
+docker-compose restart web
+
+# Check service status
+docker-compose ps
+```
+
+## 6. Troubleshooting
+
+### Services Won't Start
+```bash
+# Remove all containers and volumes
+docker-compose down -v
+
+# Rebuild and start
+docker-compose up --build -d
+```
+
+### Redis Connection Issues
+```bash
+# Check Redis logs
+docker-compose logs redis
+
+# Restart Redis
+docker-compose restart redis
+```
+
+### API Not Responding
+1. Check if containers are running:
+   ```bash
+   docker-compose ps
+   ```
+2. Verify logs:
+   ```bash
+   docker-compose logs web
+   ```
+3. Ensure ports are available:
+   ```bash
+   # Check port usage
+   sudo lsof -i :8000
+   sudo lsof -i :6379
+   ```
+
+## 7. Development Tips
+
+- Use `docker-compose logs -f` to monitor logs in real-time
+- Check Redis data:
+  ```bash
+  docker-compose exec redis redis-cli
+  ```
+- Access FastAPI docs: `http://localhost:8000/docs`
