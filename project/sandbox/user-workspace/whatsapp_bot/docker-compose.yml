@@ -1,26 +1,22 @@
-version: '3.8'
-
 services:
   web:
     build: .
     ports:
       - "8000:8000"
-    volumes:
-      - .:/app
     environment:
       - REDIS_URL=redis://redis:6379
+      - WHATSAPP_API_KEY=${WHATSAPP_API_KEY}
+    volumes:
+      - .:/app
     depends_on:
       - redis
-    networks:
-      - whatsapp-bot-network
 
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
-    networks:
-      - whatsapp-bot-network
+    volumes:
+      - redis-data:/data
 
-networks:
-  whatsapp-bot-network:
-    driver: bridge
+volumes:
+  redis-data:
